@@ -1,6 +1,6 @@
 #!/bin/bash
 # Starts Clawd (Claude Code + Telegram channel plugin) in tmux session "clawd".
-# Run at boot by cron:  @reboot /path/to/ravens/clawd/start-clawd.sh >> ~/start-clawd.log 2>&1
+# Run at boot by cron:  @reboot /path/to/clawd/start-clawd.sh >> ~/start-clawd.log 2>&1
 export PATH="$HOME/.local/bin:$HOME/.bun/bin:/usr/local/bin:/usr/bin:/bin"
 WORKDIR="${CLAWD_WORKDIR:-$HOME}"   # folder Clawd works in (its CLAUDE.md + projects)
 tmux has-session -t clawd 2>/dev/null && exit 0
