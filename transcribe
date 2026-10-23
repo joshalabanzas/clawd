@@ -1,0 +1,30 @@
+#!/usr/bin/env python3
+"""Transcribe an audio file (e.g. a Telegram voice note .oga) to text.
+Usage: transcribe <file> [model]   model: tiny|base|small (default base)
+Env: STT_LANG=en to force a language (default: auto-detect).
+Install: python3 -m venv ~/.local/share/stt-venv && ~/.local/share/stt-venv/bin/pip install faster-whisper "av<15"
+then point the shebang at ~/.local/share/stt-venv/bin/python and copy to ~/.local/bin/transcribe."""
+import os
+import sys
+
+import av
+import numpy as np
+from faster_whisper import WhisperModel
+
+
+def decode(path):
+    # Decode ourselves: faster-whisper 1.2.1's decode_audio passes metadata_errors=, which PyAV 19 removed.
+    resampler = av.AudioResampler(format="s16", layout="mono", rate=16000)
+    chunks = []
+    with av.open(path) as c:
+        for frame in c.decode(audio=0):
+            chunks += [f.to_ndarray().reshape(-1) for f in resampler.resample(frame)]
+        chunks += [f.to_ndarray().reshape(-1) for f in resampler.resample(None)]
+    return np.concatenate(chunks).astype(np.float32) / 32768.0
+
+
+if len(sys.argv) < 2:
+    sys.exit(__doc__)
+model = WhisperModel(sys.argv[2] if len(sys.argv) > 2 else "base", device="cpu", compute_type="int8")
+segments, _ = model.transcribe(decode(sys.argv[1]), language=os.environ.get("STT_LANG") or None, vad_filter=True)
+print(" ".join(s.text.strip() for s in segments))

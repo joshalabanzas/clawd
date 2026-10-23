@@ -1,0 +1,24 @@
+# secrets / personal config (live in ~/.config, never here)
+.env
+*.env
+token
+chat_id
+config.json
+profile.md
+context.md
+*.session
+
+# run output
+messages.json
+events.json
+summary.txt
+digest.txt
+claude-output.txt
+runs/
+ledger.json
+pending.json
+
+__pycache__/
+*.pyc
+.venv/
+.DS_Store
